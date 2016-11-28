@@ -28,11 +28,12 @@ ENV ODOO_VERSION 10.0
 ENV ODOO_RELEASE 20161128
 RUN set -x; \
         adduser --system --quiet --home=/opt/odoo --gecos 'ODOO' --group odoo \
-        && git clone --single-branch --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git v${ODOO_VERSION}
+        && git clone --single-branch --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git v${ODOO_VERSION} \
         && chown -R odoo /opt/odoo
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
+RUN mkdir -p /etc/odoo
 COPY ./odoo.conf /etc/odoo/odoo-server.conf
 RUN chown odoo /etc/odoo/odoo-server.conf
 
