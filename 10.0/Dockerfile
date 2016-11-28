@@ -12,9 +12,16 @@ RUN set -x; \
             python-gevent \
             python-pip \
             python-pyinotify \
+            python-passlib \
             python-renderpm \
             python-support \
             git-core \
+            python-cups python-dateutil python-decorator python-docutils python-feedparser \
+            python-gdata python-geoip python-imaging python-jinja2 python-ldap python-libxslt1 \
+            python-lxml python-mako python-mock python-openid python-psutil python-psycopg2 \
+            python-pybabel python-pychart python-pydot python-pyparsing python-pypdf python-reportlab python-requests \
+            python-simplejson python-tz python-unicodecsv python-unittest2 python-vatnumber python-vobject \
+            python-werkzeug python-xlwt python-yaml node-clean-css node-less xfonts-75dpi xfonts-base \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
@@ -28,11 +35,12 @@ ENV ODOO_VERSION 10.0
 ENV ODOO_RELEASE 20161128
 RUN set -x; \
         adduser --system --quiet --home=/opt/odoo --gecos 'ODOO' --group odoo \
-        && git clone --single-branch --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git v${ODOO_VERSION} \
-        && chown -R odoo /opt/odoo
+        && git clone --single-branch --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /opt/odoo/v${ODOO_VERSION} \
+        && chown -R odoo /opt/odoo \
+        && ln -s /opt/odoo/v${ODOO_VERSION}/odoo-bin /usr/local/bin/odoo
 
 # Copy entrypoint script and Odoo configuration file
-COPY ./entrypoint.sh /
+COPY ./entrypoint.sh /usr/local/bin/
 RUN mkdir -p /etc/odoo
 COPY ./odoo.conf /etc/odoo/odoo-server.conf
 RUN chown odoo /etc/odoo/odoo-server.conf
@@ -51,5 +59,5 @@ ENV ODOO_RC /etc/odoo/odoo-server.conf
 # Set default user when running the container
 USER odoo
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["odoo"]
