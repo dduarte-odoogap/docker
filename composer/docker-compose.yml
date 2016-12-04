@@ -1,0 +1,32 @@
+version: '2'
+services:
+  web:
+    image: odoo:10.0
+    container_name: odoo01
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    environment:
+    - HOST=db
+    - USER=odoo
+    - PASSWORD=admin
+    - ODOO_RC=/etc/odoo/odoo.conf
+    # need to chown the host folders
+    volumes:
+      - odoo-web-data:/mnt/odoo-data
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+  db:
+    image: postgres:9.5
+    container_name: db
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+volumes:
+  odoo-web-data:
+  odoo-db-data:

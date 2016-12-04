@@ -32,7 +32,7 @@ RUN set -x; \
 
 # Install Odoo
 ENV ODOO_VERSION 10.0
-ENV ODOO_RELEASE 20161128
+ENV ODOO_RELEASE 20161201
 RUN set -x; \
         adduser --system --quiet --home=/opt/odoo --gecos 'ODOO' --group odoo \
         && git clone --single-branch --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /opt/odoo/v${ODOO_VERSION} \
@@ -42,19 +42,23 @@ RUN set -x; \
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /usr/local/bin/
 RUN mkdir -p /etc/odoo
+RUN mkdir -p /var/lib/odoo/log/
 COPY ./odoo.conf /etc/odoo/odoo-server.conf
 RUN chown odoo /etc/odoo/odoo-server.conf
+RUN chown odoo:root /var/lib/odoo/log/
 
 # Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN mkdir -p /mnt/odoo-data \
-        && chown -R odoo /mnt/odoo-data
-VOLUME ["/var/lib/odoo", "/mnt/odoo-data"]
+RUN mkdir -p /mnt/extra-addons \
+        && chown -R odoo /mnt/extra-addons
+RUN mkdir -p /var/lib/odoo \
+        && chown -R odoo /var/lib/odoo
+VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 # Expose Odoo services
 EXPOSE 8069 8072
 
 # Set the default config file
-ENV ODOO_RC /etc/odoo/odoo-server.conf
+ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Set default user when running the container
 USER odoo
